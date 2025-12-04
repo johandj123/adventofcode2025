@@ -87,6 +87,31 @@ public class GraphUtil {
         return explored;
     }
 
+    public static <T> Map<T, Integer> breadthFirstSearchDistances(T start, Function<T, Iterable<T>> neighbours) {
+        Set<T> current = new HashSet<>(List.of(start));
+        Map<T, Integer> distances = new HashMap<>();
+        int counter = 0;
+        while (!current.isEmpty()) {
+            for (T t : current) {
+                distances.put(t, counter);
+            }
+            Set<T> next = new HashSet<>();
+            for (T node : current) {
+                for (T nextNode : neighbours.apply(node)) {
+                    if (!distances.containsKey(nextNode)) {
+                        next.add(nextNode);
+                    }
+                }
+            }
+            counter++;
+            current = next;
+        }
+        for (T t : current) {
+            distances.put(t, counter);
+        }
+        return distances;
+    }
+
     public static <T> List<Set<T>> components(Collection<T> nodes, Function<T, Iterable<T>> neighbours) {
         Set<T> todo = new HashSet<>(nodes);
         List<Set<T>> result = new ArrayList<>();

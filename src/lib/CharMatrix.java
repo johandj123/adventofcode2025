@@ -3,12 +3,14 @@ package lib;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
-public class CharMatrix {
+public class CharMatrix implements Iterable<CharMatrix.Position> {
     private static final Comparator<Position> POSITION_COMPARATOR = Comparator.comparing(Position::getY).thenComparing(Position::getX);
 
-    private char[][] content;
-    private char fill;
+    private final char[][] content;
+    private final char fill;
 
     public CharMatrix(CharMatrix charMatrix)
     {
@@ -188,6 +190,15 @@ public class CharMatrix {
     }
 
     @Override
+    public Iterator<Position> iterator() {
+        return new PositionIterator();
+    }
+
+    public Stream<Position> stream() {
+        return StreamSupport.stream(spliterator(), false);
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
@@ -208,6 +219,28 @@ public class CharMatrix {
         return IntStream.range(0, content.length)
                 .mapToObj(this::getRow)
                 .collect(Collectors.joining("\n"));
+    }
+
+    private class PositionIterator implements Iterator<Position>
+    {
+        private int x = 0;
+        private int y = 0;
+
+        @Override
+        public boolean hasNext() {
+            return y < getHeight();
+        }
+
+        @Override
+        public Position next() {
+            Position position = new Position(x, y);
+            x++;
+            if (x >= getWidth()) {
+                x = 0;
+                y++;
+            }
+            return position;
+        }
     }
 
     public class Position implements Comparable<Position>
@@ -279,6 +312,10 @@ public class CharMatrix {
             return new Position(x + dx, y + dy);
         }
 
+        public Position add(Direction delta) {
+            return new Position(x + delta.x(), y + delta.y());
+        }
+
         public List<Position> getNeighbours()
         {
             List<Position> result = new ArrayList<>();
@@ -344,6 +381,11 @@ public class CharMatrix {
                 }
             }
             return result;
+        }
+
+        public int manhattanDistance(Position o)
+        {
+            return Math.abs(x - o.x) + Math.abs(y - o.y);
         }
 
         @Override
