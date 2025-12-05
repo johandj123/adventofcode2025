@@ -6,8 +6,8 @@ import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class CharMatrix implements Iterable<CharMatrix.Position> {
-    private static final Comparator<Position> POSITION_COMPARATOR = Comparator.comparing(Position::getY).thenComparing(Position::getX);
+public class CharMatrix implements Iterable<CharMatrix.Cell> {
+    private static final Comparator<Cell> CELL_POSITION_COMPARATOR = Comparator.comparing(Cell::getY).thenComparing(Cell::getX);
 
     private final char[][] content;
     private final char fill;
@@ -159,12 +159,12 @@ public class CharMatrix implements Iterable<CharMatrix.Position> {
         return new CharMatrix(newContent, fill);
     }
 
-    public Optional<Position> find(char c)
+    public Optional<Cell> find(char c)
     {
         for (int y = 0; y < getHeight(); y++) {
             for (int x = 0; x < getWidth(); x++) {
                 if (content[y][x] == c) {
-                    return Optional.of(new Position(x, y));
+                    return Optional.of(new Cell(x, y));
                 }
             }
         }
@@ -190,11 +190,11 @@ public class CharMatrix implements Iterable<CharMatrix.Position> {
     }
 
     @Override
-    public Iterator<Position> iterator() {
-        return new PositionIterator();
+    public Iterator<Cell> iterator() {
+        return new CellIterator();
     }
 
-    public Stream<Position> stream() {
+    public Stream<Cell> stream() {
         return StreamSupport.stream(spliterator(), false);
     }
 
@@ -221,7 +221,7 @@ public class CharMatrix implements Iterable<CharMatrix.Position> {
                 .collect(Collectors.joining("\n"));
     }
 
-    private class PositionIterator implements Iterator<Position>
+    private class CellIterator implements Iterator<Cell>
     {
         private int x = 0;
         private int y = 0;
@@ -232,23 +232,23 @@ public class CharMatrix implements Iterable<CharMatrix.Position> {
         }
 
         @Override
-        public Position next() {
-            Position position = new Position(x, y);
+        public Cell next() {
+            Cell cell = new Cell(x, y);
             x++;
             if (x >= getWidth()) {
                 x = 0;
                 y++;
             }
-            return position;
+            return cell;
         }
     }
 
-    public class Position implements Comparable<Position>
+    public class Cell implements Comparable<Cell>
     {
         final int x;
         final int y;
 
-        public Position(int x, int y) {
+        public Cell(int x, int y) {
             this.x = x;
             this.y = y;
         }
@@ -281,9 +281,9 @@ public class CharMatrix implements Iterable<CharMatrix.Position> {
             CharMatrix.this.set(x, y, c);
         }
 
-        public Position wrap()
+        public Cell wrap()
         {
-            return new Position(
+            return new Cell(
                     Math.floorMod(x, getWidth()),
                     Math.floorMod(y, getHeight())
             );
@@ -293,8 +293,8 @@ public class CharMatrix implements Iterable<CharMatrix.Position> {
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
-            Position position = (Position) o;
-            return x == position.x && y == position.y;
+            Cell cell = (Cell) o;
+            return x == cell.x && y == cell.y;
         }
 
         @Override
@@ -302,88 +302,36 @@ public class CharMatrix implements Iterable<CharMatrix.Position> {
             return Objects.hash(x, y);
         }
 
-        public Position add(Position delta)
+        public Cell add(int dx, int dy)
         {
-            return new Position(x + delta.x, y + delta.y);
+            return new Cell(x + dx, y + dy);
         }
 
-        public Position add(int dx,int dy)
+        public Cell add(Direction delta) {
+            return new Cell(x + delta.x(), y + delta.y());
+        }
+
+        public List<Cell> getNeighbours()
         {
-            return new Position(x + dx, y + dy);
+            return Direction.DIRECTIONS.stream().map(this::add).filter(Cell::isValid).toList();
         }
 
-        public Position add(Direction delta) {
-            return new Position(x + delta.x(), y + delta.y());
-        }
-
-        public List<Position> getNeighbours()
+        public List<Cell> getUnboundedNeighbours()
         {
-            List<Position> result = new ArrayList<>();
-            for (Position delta : new Position[] {
-                    new Position(-1, 0),
-                    new Position(1, 0),
-                    new Position(0, -1),
-                    new Position(0, 1),
-            }) {
-                Position next = this.add(delta);
-                if (next.isValid()) {
-                    result.add(next);
-                }
-            }
-            return result;
+            return Direction.DIRECTIONS.stream().map(this::add).toList();
         }
 
-        public List<Position> getUnboundedNeighbours()
+        public List<Cell> getWrapNeighbours()
         {
-            List<Position> result = new ArrayList<>();
-            for (Position delta : new Position[] {
-                    new Position(-1, 0),
-                    new Position(1, 0),
-                    new Position(0, -1),
-                    new Position(0, 1),
-            }) {
-                result.add(this.add(delta));
-            }
-            return result;
+            return Direction.DIRECTIONS.stream().map(this::add).map(Cell::wrap).toList();
         }
 
-        public List<Position> getWrapNeighbours()
+        public List<Cell> getNeighboursIncludingDiagonal()
         {
-            List<Position> result = new ArrayList<>();
-            for (Position delta : new Position[] {
-                    new Position(-1, 0),
-                    new Position(1, 0),
-                    new Position(0, -1),
-                    new Position(0, 1),
-            }) {
-                Position next = this.add(delta);
-                result.add(next.wrap());
-            }
-            return result;
+            return Direction.DIRECTIONS_WITH_DIAGONAL.stream().map(this::add).filter(Cell::isValid).toList();
         }
 
-        public List<Position> getNeighboursIncludingDiagonal()
-        {
-            List<Position> result = new ArrayList<>();
-            for (Position delta : new Position[] {
-                    new Position(-1, 0),
-                    new Position(1, 0),
-                    new Position(0, -1),
-                    new Position(0, 1),
-                    new Position(-1, -1),
-                    new Position(1, -1),
-                    new Position(-1, 1),
-                    new Position(1, 1)
-            }) {
-                Position next = this.add(delta);
-                if (next.isValid()) {
-                    result.add(next);
-                }
-            }
-            return result;
-        }
-
-        public int manhattanDistance(Position o)
+        public int manhattanDistance(Cell o)
         {
             return Math.abs(x - o.x) + Math.abs(y - o.y);
         }
@@ -394,8 +342,8 @@ public class CharMatrix implements Iterable<CharMatrix.Position> {
         }
 
         @Override
-        public int compareTo(Position o) {
-            return POSITION_COMPARATOR.compare(this, o);
+        public int compareTo(Cell o) {
+            return CELL_POSITION_COMPARATOR.compare(this, o);
         }
     }
 }

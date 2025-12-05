@@ -23,9 +23,9 @@ public class Day4 {
                 break;
             }
             count += delta;
-            for (var position : charMatrix) {
-                if (position.get() == 'x') {
-                    position.set('.');
+            for (var cell : charMatrix) {
+                if (cell.get() == 'x') {
+                    cell.set('.');
                 }
             }
         }
@@ -34,17 +34,17 @@ public class Day4 {
 
     private static int markWithX(CharMatrix charMatrix) {
         int count = 0;
-        for (var position : charMatrix) {
-            if (position.get() != '.') {
+        for (var cell : charMatrix) {
+            if (cell.get() != '.') {
                 int rolls = 0;
-                for (var p : position.getNeighboursIncludingDiagonal()) {
+                for (var p : cell.getNeighboursIncludingDiagonal()) {
                     if (p.getUnbounded() != '.') {
                         rolls++;
                     }
                 }
                 if (rolls < 4) {
                     count++;
-                    position.set('x');
+                    cell.set('x');
                 }
             }
         }
