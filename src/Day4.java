@@ -23,12 +23,9 @@ public class Day4 {
                 break;
             }
             count += delta;
-            for (int y = 0; y < charMatrix.getHeight(); y++) {
-                for (int x = 0; x < charMatrix.getWidth(); x++) {
-                    CharMatrix.Position position = charMatrix.new Position(x, y);
-                    if (position.get() == 'x') {
-                        position.set('.');
-                    }
+            for (var position : charMatrix) {
+                if (position.get() == 'x') {
+                    position.set('.');
                 }
             }
         }
@@ -37,20 +34,17 @@ public class Day4 {
 
     private static int markWithX(CharMatrix charMatrix) {
         int count = 0;
-        for (int y = 0; y < charMatrix.getHeight(); y++) {
-            for (int x = 0; x < charMatrix.getWidth(); x++) {
-                CharMatrix.Position position = charMatrix.new Position(x, y);
-                if (position.get() != '.') {
-                    int rolls = 0;
-                    for (var p : position.getNeighboursIncludingDiagonal()) {
-                        if (p.getUnbounded() != '.') {
-                            rolls++;
-                        }
+        for (var position : charMatrix) {
+            if (position.get() != '.') {
+                int rolls = 0;
+                for (var p : position.getNeighboursIncludingDiagonal()) {
+                    if (p.getUnbounded() != '.') {
+                        rolls++;
                     }
-                    if (rolls < 4) {
-                        count++;
-                        position.set('x');
-                    }
+                }
+                if (rolls < 4) {
+                    count++;
+                    position.set('x');
                 }
             }
         }
