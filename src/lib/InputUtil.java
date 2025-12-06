@@ -50,6 +50,14 @@ public class InputUtil {
                 .collect(Collectors.toList());
     }
 
+    public static List<Long> extractPositiveLongs(String input) {
+        String[] parts = input.split("\\D");
+        return Arrays.stream(parts)
+                .filter(s -> !s.isBlank())
+                .map(Long::parseLong)
+                .collect(Collectors.toList());
+    }
+
     public static List<String> extract(String input, String regex) {
         Pattern pattern = Pattern.compile(regex);
         List<String> result = new ArrayList<>();
