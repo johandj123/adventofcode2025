@@ -19,7 +19,7 @@ public class Graph<T> {
     public boolean addLink(T from,T to) {
         addNode(from);
         addNode(to);
-        return links.computeIfAbsent(from, key -> new HashSet<>()).add(to);
+        return links.computeIfAbsent(from, _ -> new HashSet<>()).add(to);
     }
 
     public void addLinkBidirectional(T node1,T node2) {

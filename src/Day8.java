@@ -1,5 +1,4 @@
 import lib.Graph;
-import lib.GraphUtil;
 import lib.InputUtil;
 
 import java.io.IOException;
@@ -24,8 +23,7 @@ public class Day8 {
         boxes.forEach(graph::addNode);
         for (int i = 0; i < 1000; i++) {
             Pair pair = pairs.get(i);
-            graph.addLink(pair.a, pair.b);
-            graph.addLink(pair.b, pair.a);
+            graph.addLinkBidirectional(pair.a, pair.b);
         }
         List<Set<Box>> components = graph.components();
         List<Integer> sizes = new ArrayList<>(components.stream().map(Set::size).sorted().toList());
@@ -37,8 +35,7 @@ public class Day8 {
         Graph<Box> graph = new Graph<>();
         boxes.forEach(graph::addNode);
         for (Pair pair : pairs) {
-            graph.addLink(pair.a, pair.b);
-            graph.addLink(pair.b, pair.a);
+            graph.addLinkBidirectional(pair.a, pair.b);
             List<Set<Box>> components = graph.components();
             if (components.size() == 1) {
                 System.out.println((long)pair.a.x * (long)pair.b.x);
