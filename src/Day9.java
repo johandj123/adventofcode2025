@@ -1,9 +1,10 @@
 import lib.*;
 
 import java.io.IOException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 public class Day9 {
     public static void main(String[] args) throws IOException {
@@ -42,7 +43,7 @@ public class Day9 {
                 throw new IllegalArgumentException();
             }
         }
-        GraphUtil.visit(charMatrix.new Cell(charMatrix.getWidth() / 2, charMatrix.getHeight() / 2 + 1),
+        GraphUtil.visitReachable(charMatrix.new Cell(charMatrix.getWidth() / 2, charMatrix.getHeight() / 2 + 1),
                 cell -> cell.getNeighbours().stream().filter(c -> c.get() == '.').toList(),
                 cell -> cell.set('#'));
 
@@ -68,7 +69,7 @@ public class Day9 {
     }
 
     private static Map<Integer,Integer> toIndexMap(List<Position> positions, Function<Position,Integer> function) {
-        List<Integer> list = new ArrayList<>(positions.stream().map(function).collect(Collectors.toCollection(TreeSet::new)));
+        List<Integer> list = positions.stream().map(function).distinct().sorted().toList();
         Map<Integer,Integer> map = new HashMap<>();
         for (int i = 0; i < list.size(); i++) {
             map.put(list.get(i), i);

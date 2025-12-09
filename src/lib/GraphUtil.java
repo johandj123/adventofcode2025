@@ -24,7 +24,7 @@ public class GraphUtil {
         return seen;
     }
 
-    public static <T> void visit(T start, Function<T, Iterable<T>> neighbours, Consumer<T> callback) {
+    public static <T> void visitReachable(T start, Function<T, Iterable<T>> neighbours, Consumer<T> callback) {
         List<T> startList = List.of(start);
         Set<T> seen = new HashSet<>(startList);
         Deque<T> todo = new ArrayDeque<>(startList);
