@@ -1,6 +1,7 @@
 package lib;
 
 import java.util.*;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
@@ -21,6 +22,22 @@ public class GraphUtil {
             }
         }
         return seen;
+    }
+
+    public static <T> void visit(T start, Function<T, Iterable<T>> neighbours, Consumer<T> callback) {
+        List<T> startList = List.of(start);
+        Set<T> seen = new HashSet<>(startList);
+        Deque<T> todo = new ArrayDeque<>(startList);
+        callback.accept(start);
+        while (!todo.isEmpty()) {
+            T node = todo.remove();
+            for (T nextNode : neighbours.apply(node)) {
+                if (seen.add(nextNode)) {
+                    callback.accept(nextNode);
+                    todo.add(nextNode);
+                }
+            }
+        }
     }
 
     public static <T> int breadthFirstSearch(T start, Function<T, Iterable<T>> neighbours, Predicate<T> endPredicate) {
