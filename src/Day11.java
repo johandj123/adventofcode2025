@@ -18,13 +18,21 @@ public class Day11 {
 				graph.addLink(right.trim(), left);
 			}
 		}
-		Map<String, Long> cache = new HashMap<>();
-		long first = pathCount(graph, "out", cache);
-		System.out.println(first);
+		System.out.println(pathCount(graph, "out", "you"));
+
+		long second = pathCount(graph, "out", "dac") * pathCount(graph, "dac", "fft") * pathCount(graph, "fft", "svr") +
+				pathCount(graph, "out", "fft") * pathCount(graph, "fft", "dac") * pathCount(graph, "dac", "svr");
+		System.out.println(second);
 	}
 
-	private static long pathCount(Graph<String> graph, String node, Map<String, Long> cache) {
-		if ("you".equals(node)) {
+	private static long pathCount(Graph<String> graph, String node, String start)
+	{
+		Map<String, Long> cache = new HashMap<>();
+		return pathCount(graph, node, cache, start);
+	}
+
+	private static long pathCount(Graph<String> graph, String node, Map<String, Long> cache, String start) {
+		if (start.equals(node)) {
 			return 1L;
 		}
 		if (cache.containsKey(node)) {
@@ -32,7 +40,7 @@ public class Day11 {
 		}
 		long count = 0L;
 		for (String child : graph.getNeighbours(node)) {
-			count += pathCount(graph, child, cache);
+			count += pathCount(graph, child, cache, start);
 		}
 		cache.put(node, count);
 		return count;
